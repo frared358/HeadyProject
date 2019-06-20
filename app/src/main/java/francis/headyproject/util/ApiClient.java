@@ -1,14 +1,10 @@
 package francis.headyproject.util;
 
-import android.content.Context;
-
-import com.google.gson.Gson;
-
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
+
 
 import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
 

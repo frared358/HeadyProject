@@ -9,5 +9,4 @@ public interface ApiInterface {
     @GET("json")
     Call<ResponseData> getData();
 
-
 }

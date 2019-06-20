@@ -14,17 +14,25 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 
 import francis.headyproject.pojo.ResponseData;
 import francis.headyproject.util.ApiClient;
 import francis.headyproject.util.ApiInterface;
+import francis.headyproject.util.DatabaseHelper;
+import francis.headyproject.util.SharePref;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -40,8 +50,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        SharePref sharePref = new SharePref();
 
-        getData();
+        if (!sharePref.getPrefData(this).contains("key_check")) {
+            getData();
+            sharePref.setData(this,"key_check",false);
+        }
+
+
 
     }
 
@@ -99,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    DatabaseHelper db = new DatabaseHelper(MainActivity.this);
     private void getData() {
 
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -108,7 +125,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
 
-                assert response.body() != null;
+                List<ResponseData.Category> list =  response.body().getCategories();
+
+
+                for (int i=0;i<list.size();i++){
+                    List<ResponseData.Product> productList =  response.body().getCategories().get(i).getProducts();
+                    for (int j=0;j<productList.size();j++){
+                        List<ResponseData.Variant> variantList =  productList.get(j).getVariants();
+                        for (int k=0;k<variantList.size();k++){
+                            Log.i("DATATA",list.get(i).getId()+" "+list.get(i).getName()+" "+productList.get(j).getId()+" "+productList.get(j).getName()+" "+variantList.get(k).getId()+" "+variantList.get(k).getColor()+" "+variantList.get(k).getSize()+" "+variantList.get(k).getPrice());
+                            db.insertData(list.get(i).getId(),list.get(i).getName(),productList.get(j).getId(),productList.get(j).getName(),variantList.get(k).getId(),variantList.get(k).getColor(),String.valueOf(variantList.get(k).getSize()),String.valueOf(variantList.get(k).getPrice()));
+                        }
+                    }
+                }
+
                 Log.i("Message->",""+response.body().getCategories().get(1).getName());
             }
 
