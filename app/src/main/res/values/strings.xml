@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Heady Project</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Heady Project</string>
@@ -23,4 +22,5 @@
     <string name="most_shared_products">Most Shared Products</string>
     <string name="cancel">Cancel</string>
     <string name="not_available">Not Available</string>
+    <string name="all_products">All Products</string>
 </resources>

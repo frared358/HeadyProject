@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void firstData(){
         Cursor cur = db.allData();
-        setTitle("All Product");
+        setTitle(getResources().getString(R.string.all_products));
 
         while (cur.moveToNext()){
             listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
