@@ -77,10 +77,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (!sharePref.getPrefData(this).contains("key_check")) {
             setData();
             sharePref.setData(this,"key_check",false);
+        }else {
+            drawerMenu();
+            populateExpandableList();
         }
 
-        drawerMenu();
-        populateExpandableList();
     }
 
     @Override
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_filter) {
-            dialgRanking();
+            dialgranking();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -138,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
 
                 List<ResponseData.Ranking> listRank =  response.body().getRankings();
-
                 for (int i=0;i<listRank.size();i++){
                     List<ResponseData.Product_> listRankProduct = listRank.get(i).getProducts();
 
@@ -165,7 +165,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
 
                 }
-
+                drawerMenu();
+                populateExpandableList();
             }
 
             @Override
@@ -205,6 +206,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         expandableListAdapter = new ExpandableListAdapter(this, listCategory, listProduct);
         expandableListView.setAdapter(expandableListAdapter);
 
+        firstData();
+
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -228,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     AlertDialog alertDialog;
     RadioButton rb_view,rb_share,rb_order;
-    private void dialgRanking(){
+    private void dialgranking(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Filters");
@@ -258,33 +261,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+
             case R.id.tv_dialog_Cancel:
                 alertDialog.cancel();
                 break;
 
             case R.id.tv_dialog_Filter:
-                listData.clear();
-
-                if (rb_view.isChecked()){
-                    cur = db.getTableData("rank_view_table");
-                    rankTitle = "View Count";
-                    setTitle(getResources().getString(R.string.most_viewed_products));
-                }else if (rb_order.isChecked()){
-                    cur = db.getTableData("rank_order_table");
-                    rankTitle = "Order Count";
-                    setTitle(getResources().getString(R.string.most_ordered_products));
-                }else if (rb_share.isChecked()){
-                    cur = db.getTableData("rank_share_table");
-                    setTitle(getResources().getString(R.string.most_shared_products));
-                    rankTitle = "Share Count";
-                }
-
-                while (cur.moveToNext()){
-                    listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
-                    adapter.notifyDataSetChanged();
-                }
-                alertDialog.cancel();
+                rankFilter();
                 break;
         }
+    }
+
+    private void firstData(){
+        Cursor cur = db.allData();
+        setTitle("All Product");
+
+        while (cur.moveToNext()){
+            listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private void rankFilter(){
+        listData.clear();
+        if (rb_view.isChecked()){
+            cur = db.getTableData("rank_view_table");
+            rankTitle = "View Count";
+            setTitle(getResources().getString(R.string.most_viewed_products));
+        }else if (rb_order.isChecked()){
+            cur = db.getTableData("rank_order_table");
+            rankTitle = "Order Count";
+            setTitle(getResources().getString(R.string.most_ordered_products));
+        }else if (rb_share.isChecked()){
+            cur = db.getTableData("rank_share_table");
+            setTitle(getResources().getString(R.string.most_shared_products));
+            rankTitle = "Share Count";
+        }
+
+        while (cur.moveToNext()){
+            listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
+            adapter.notifyDataSetChanged();
+        }
+        alertDialog.cancel();
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -188,5 +189,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         return db.rawQuery("select * from "+table_name,null);
+    }
+
+    public Cursor allData(){
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.rawQuery("select * from Data_table;",null);
     }
 }
