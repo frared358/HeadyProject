@@ -24,6 +24,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private final String COLV_3 = "variants_size";
     private final String COLV_4 = "variants_price";
 
+    private final String TABLE_VIEW = "rank_view_table";
+    private final String COLRV_1 = "view_id";
+    private final String COLRV_2 = "view_count";
+
+    private final String TABLE_SHARE = "rank_share_table";
+    private final String COLRS_1 = "share_id";
+    private final String COLRS_2 = "share_count";
+
+    private final String TABLE_ORDER = "rank_order_table";
+    private final String COLRO_1 = "order_id";
+    private final String COLRO_2 = "order_count";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -47,6 +59,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 +COLV_2+" TEXT,"
                 +COLV_3+" TEXT, "
                 +COLV_4+" TEXT)");
+
+        db.execSQL("create table " + TABLE_VIEW + " ("
+                +COLV_1+" INTEGER,"
+                +COLRV_2+" TEXT,"
+                +COLV_2+" TEXT,"
+                +COLV_3+" TEXT, "
+                +COLV_4+" TEXT)");
+
+        db.execSQL("create table " + TABLE_SHARE + " ("
+                +COLV_1+" INTEGER,"
+                +COLRS_2+" TEXT,"
+                +COLV_2+" TEXT,"
+                +COLV_3+" TEXT, "
+                +COLV_4+" TEXT)");
+
+        db.execSQL("create table " + TABLE_ORDER + " ("
+                +COLV_1+" INTEGER,"
+                +COLRO_2+" TEXT,"
+                +COLV_2+" TEXT,"
+                +COLV_3+" TEXT, "
+                +COLV_4+" TEXT)");
     }
 
     @Override
@@ -54,6 +87,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Data);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Product);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_Categories);
+
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIEW);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHARE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDER);
     }
 
 //    public boolean insertData1(int categories_id,String categories_name,int products_id,String products_name,int variants_id, String color,String size,String price){
@@ -127,5 +164,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         return db.rawQuery("select * from "+TABLE_Data+ " WHERE products_id = "+products_id+";",null);
+    }
+
+    public Cursor getRankingData(int variants_id){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.rawQuery("select * from "+TABLE_Data+ " WHERE variants_id = "+variants_id+";",null);
+    }
+
+    public void insertMostViewed(int varient_id, String view_count,String view_color,String view_size,String view_price){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLV_1,(varient_id));
+        contentValues.put(COLRV_2,view_count);
+        contentValues.put(COLV_2,(view_color));
+        contentValues.put(COLV_3,(view_size));
+        contentValues.put(COLV_4,(view_price));
+
+        db.insert(TABLE_VIEW,null,contentValues);
+    }
+
+    public void insertMostShared(int varient_id, String share_count,String share_color,String share_size,String share_price){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLV_1,(varient_id));
+        contentValues.put(COLRS_2,share_count);
+        contentValues.put(COLV_2,(share_color));
+        contentValues.put(COLV_3,(share_size));
+        contentValues.put(COLV_4,(share_price));
+
+        db.insert(TABLE_SHARE,null,contentValues);
+    }
+
+    public void insertMostOrder(int varient_id, String order_count, String order_color,String order_size,String order_price){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLV_1,(varient_id));
+        contentValues.put(COLRO_2,order_count);
+        contentValues.put(COLV_2,(order_color));
+        contentValues.put(COLV_3,(order_size));
+        contentValues.put(COLV_4,(order_price));
+
+        db.insert(TABLE_ORDER,null,contentValues);
+    }
+
+    public Cursor getTableData(String table_name){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.rawQuery("select * from "+table_name,null);
     }
 }

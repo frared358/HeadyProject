@@ -1,10 +1,15 @@
 package francis.headyproject;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,6 +18,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.ExpandableListView;
+import android.widget.RadioButton;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     ArrayList<MenuData> listCategory = new ArrayList<>();
     HashMap<MenuData, ArrayList<MenuData>> listProduct = new HashMap<>();
@@ -86,6 +93,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_filter:
+                dialgRanking();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void setData() {
 
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -96,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
 
                 List<ResponseData.Category> list =  response.body().getCategories();
-
 
                 for (int i=0;i<list.size();i++){
                     //insert in Table Categories
@@ -109,13 +132,42 @@ public class MainActivity extends AppCompatActivity {
                         List<ResponseData.Variant> variantList =  productList.get(j).getVariants();
 
                         for (int k=0;k<variantList.size();k++){
-                            Log.i("DATATA",list.get(i).getId()+" "+list.get(i).getName()+" "+productList.get(j).getId()+" "+productList.get(j).getName()+" "+variantList.get(k).getId()+" "+variantList.get(k).getColor()+" "+variantList.get(k).getSize()+" "+variantList.get(k).getPrice());
                             //insert in Table Data
                             db.insertData(productList.get(j).getId(),variantList.get(k).getId(),variantList.get(k).getColor(),String.valueOf(variantList.get(k).getSize()),String.valueOf(variantList.get(k).getPrice()));
 
                         }
                     }
                 }
+
+                List<ResponseData.Ranking> listRank =  response.body().getRankings();
+
+                for (int i=0;i<listRank.size();i++){
+                    List<ResponseData.Product_> listRankProduct = listRank.get(i).getProducts();
+
+
+                    for (int j=0;j<listRankProduct.size();j++){
+                        Cursor cursor = db.getRankingData(listRankProduct.get(j).getId());
+
+                        while (cursor.moveToNext()) {
+                            int v_id = cursor.getInt(0);
+                            String v_color = cursor.getString(2);
+                            String v_size = cursor.getString(3);
+                            String v_price = cursor.getString(4);
+                            if (listRank.get(i).getRanking().equalsIgnoreCase("Most Viewed Products")){
+                                String count = String.valueOf(listRankProduct.get(j).getViewCount());
+                                db.insertMostViewed(v_id,count,v_color,v_size,v_price);
+                            }else if (listRank.get(i).getRanking().equalsIgnoreCase("Most OrdeRed Products")){
+                                String count = String.valueOf(listRankProduct.get(j).getOrderCount());
+                                db.insertMostOrder(v_id,count,v_color,v_size,v_price);
+                            }else if (listRank.get(i).getRanking().equalsIgnoreCase("Most ShaRed Products")){
+                                String count = String.valueOf(listRankProduct.get(j).getShares());
+                                db.insertMostShared(v_id,count,v_color,v_size,v_price);
+                            }
+                        }
+                    }
+
+                }
+
             }
 
             @Override
@@ -158,9 +210,11 @@ public class MainActivity extends AppCompatActivity {
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-
+                listData.clear();
                 if (listProduct.get(listCategory.get(groupPosition)) != null) {
+
                     MenuData obj = listProduct.get(listCategory.get(groupPosition)).get(childPosition);
+                    setTitle(obj.name);
                     Cursor cur = db.getAllData(obj.id);
                     while (cur.moveToNext()){
                         listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
@@ -174,4 +228,61 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    AlertDialog alertDialog;
+    RadioButton rb_view,rb_share,rb_order;
+    private void dialgRanking(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Filters");
+        builder.setCancelable(false);
+
+        LayoutInflater inflater = this.getLayoutInflater();
+        View v = inflater.inflate(R.layout.dialog_ranking, null);
+        builder.setView(v);
+
+        alertDialog = builder.create();
+
+        rb_view =  v.findViewById(R.id.rb_view);
+        rb_share =  v.findViewById(R.id.rb_share);
+        rb_order =  v.findViewById(R.id.rb_order);
+        TextView tv_dialog_Filter =  v.findViewById(R.id.tv_dialog_Filter);
+        TextView tv_dialog_Cancel =  v.findViewById(R.id.tv_dialog_Cancel);
+
+        tv_dialog_Cancel.setOnClickListener(this);
+        tv_dialog_Filter.setOnClickListener(this);
+
+        alertDialog.show();
+
+    }
+
+    Cursor cur;
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.tv_dialog_Cancel:
+                alertDialog.cancel();
+                break;
+
+            case R.id.tv_dialog_Filter:
+                listData.clear();
+
+                if (rb_view.isChecked()){
+                    cur = db.getTableData("rank_view_table");
+                    setTitle(getResources().getString(R.string.most_viewed_products));
+                }else if (rb_order.isChecked()){
+                    cur = db.getTableData("rank_order_table");
+                    setTitle(getResources().getString(R.string.most_ordered_products));
+                }else if (rb_share.isChecked()){
+                    cur = db.getTableData("rank_share_table");
+                    setTitle(getResources().getString(R.string.most_shared_products));
+                }
+
+                while (cur.moveToNext()){
+                    listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
+                    adapter.notifyDataSetChanged();
+                }
+                alertDialog.cancel();
+                break;
+        }
+    }
 }

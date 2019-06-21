@@ -34,9 +34,21 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.MyHolder> {
     @Override
     public void onBindViewHolder(@NonNull DataAdapter.MyHolder holder, int i) {
         AllData obj = list.get(i);
-        holder.tv_Color.setText(obj.color);
-        holder.tv_Size.setText(obj.size);
-        holder.tv_Price.setText(obj.price);
+        if (obj.color.equalsIgnoreCase("null")) {
+            holder.tv_Color.setText(context.getResources().getString(R.string.not_available));
+        }else {
+            holder.tv_Color.setText(obj.color);
+        }
+        if (obj.size.equalsIgnoreCase("null")) {
+            holder.tv_Color.setText(context.getResources().getString(R.string.not_available));
+        }else {
+            holder.tv_Size.setText(obj.size);
+        }
+        if (obj.price.equalsIgnoreCase("null")) {
+            holder.tv_Color.setText(context.getResources().getString(R.string.not_available));
+        }else {
+            holder.tv_Price.setText(obj.price);
+        }
     }
 
     @Override

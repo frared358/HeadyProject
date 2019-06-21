@@ -17,4 +17,10 @@
     <string name="color">Color</string>
     <string name="size">Size</string>
     <string name="prices">Prices</string>
+    <string name="filter">Filter</string>
+    <string name="most_viewed_products">Most Viewed Products</string>
+    <string name="most_ordered_products">Most Ordered Products</string>
+    <string name="most_shared_products">Most Shared Products</string>
+    <string name="cancel">Cancel</string>
+    <string name="not_available">Not Available</string>
 </resources>
