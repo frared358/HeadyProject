@@ -93,28 +93,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ORDER);
     }
 
-//    public boolean insertData1(int categories_id,String categories_name,int products_id,String products_name,int variants_id, String color,String size,String price){
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(COL_1,categories_id);
-//        contentValues.put(COL_2,categories_name);
-//        contentValues.put(COL_3,products_id);
-//        contentValues.put(COL_4,products_name);
-//        contentValues.put(COL_5,variants_id);
-//        contentValues.put(COL_6,color);
-//        contentValues.put(COL_7,size);
-//        contentValues.put(COL_8,price);
-//
-//        long res = db.insert(TABLE_NAME,null,contentValues);
-//
-//        if (res == -1){
-//            return false;
-//        }else {
-//            return true;
-//        }
-//
-//    }
-
     public void insertCategories(int categories_id,String categories_name){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -122,8 +100,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLC_2,categories_name);
 
         db.insert(TABLE_Categories,null,contentValues);
-
-
     }
 
     public void insertProducts(int categories_id, int products_id,String products_name){

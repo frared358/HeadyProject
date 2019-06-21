@@ -3,6 +3,7 @@ package francis.headyproject;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -73,7 +74,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         SharePref sharePref = new SharePref();
-
         if (!sharePref.getPrefData(this).contains("key_check")) {
             setData();
             sharePref.setData(this,"key_check",false);
@@ -101,13 +101,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_filter:
-                dialgRanking();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.action_filter) {
+            dialgRanking();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setData() {
@@ -117,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         call.enqueue(new Callback<ResponseData>() {
             @Override
-            public void onResponse(Call<ResponseData> call, Response<ResponseData> response) {
+            public void onResponse(@NonNull Call<ResponseData> call,@NonNull Response<ResponseData> response) {
 
                 List<ResponseData.Category> list =  response.body().getCategories();
 
@@ -256,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     Cursor cur;
+    String rankTitle;
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -268,13 +267,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 if (rb_view.isChecked()){
                     cur = db.getTableData("rank_view_table");
+                    rankTitle = "View Count";
                     setTitle(getResources().getString(R.string.most_viewed_products));
                 }else if (rb_order.isChecked()){
                     cur = db.getTableData("rank_order_table");
+                    rankTitle = "Order Count";
                     setTitle(getResources().getString(R.string.most_ordered_products));
                 }else if (rb_share.isChecked()){
                     cur = db.getTableData("rank_share_table");
                     setTitle(getResources().getString(R.string.most_shared_products));
+                    rankTitle = "Share Count";
                 }
 
                 while (cur.moveToNext()){
