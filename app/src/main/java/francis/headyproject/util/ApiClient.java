@@ -10,8 +10,6 @@ import static okhttp3.logging.HttpLoggingInterceptor.Level.BODY;
 
 public class ApiClient {
 
-
-
     public static Retrofit getClient(){
 
         Retrofit retrofit;

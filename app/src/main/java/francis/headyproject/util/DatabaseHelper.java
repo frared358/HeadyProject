@@ -78,30 +78,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //
 //    }
 
-    public boolean insertCategories(int categories_id,String categories_name){
+    public void insertCategories(int categories_id,String categories_name){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLC_1,categories_id);
         contentValues.put(COLC_2,categories_name);
 
-        long res = db.insert(TABLE_Categories,null,contentValues);
+        db.insert(TABLE_Categories,null,contentValues);
 
-        return res != -1;
+
     }
 
-    public boolean insertProducts(int categories_id, int products_id,String products_name){
+    public void insertProducts(int categories_id, int products_id,String products_name){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLC_1,categories_id);
         contentValues.put(COLP_1,products_id);
         contentValues.put(COLP_2,products_name);
 
-        long res = db.insert(TABLE_Product,null,contentValues);
-
-        return res != -1;
+        db.insert(TABLE_Product,null,contentValues);
     }
 
-    public boolean insertData(int products_id,int variants_id, String color,String size,String price){
+    public void insertData(int products_id,int variants_id, String color,String size,String price){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLP_1,products_id);
@@ -110,29 +108,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLV_3,size);
         contentValues.put(COLV_4,price);
 
-        long res = db.insert(TABLE_Data,null,contentValues);
-
-        return res != -1;
+        db.insert(TABLE_Data,null,contentValues);
     }
 
     public Cursor getCategoriesData(){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+TABLE_Categories,null);
-        return res;
+        return db.rawQuery("select * from "+TABLE_Categories,null);
     }
 
     public Cursor getProductData(int Categories_id){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+TABLE_Product+ " WHERE categories_id = "+Categories_id+";",null);
-        return res;
+        return db.rawQuery("select * from "+TABLE_Product+ " WHERE categories_id = "+Categories_id+";",null);
     }
 
     public Cursor getAllData(int products_id){
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from "+TABLE_Data+ " WHERE products_id = "+products_id+";",null);
-        return res;
+        return db.rawQuery("select * from "+TABLE_Data+ " WHERE products_id = "+products_id+";",null);
     }
 }

@@ -2,7 +2,7 @@ package francis.headyproject.pojo;
 
 public class MenuData {
 
-    public int id;
+    public int id,childCount;
     public String name;
 
     public MenuData(int id, String name) {

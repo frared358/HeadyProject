@@ -2,18 +2,16 @@ package francis.headyproject;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.view.MenuItem;
-import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.widget.ExpandableListView;
 
 import java.util.ArrayList;
@@ -27,17 +25,22 @@ import francis.headyproject.util.ApiClient;
 import francis.headyproject.util.ApiInterface;
 import francis.headyproject.util.DatabaseHelper;
 import francis.headyproject.util.SharePref;
+import francis.headyproject.variants.DataAdapter;
+import francis.headyproject.variants.AllData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
     ArrayList<MenuData> listCategory = new ArrayList<>();
     HashMap<MenuData, ArrayList<MenuData>> listProduct = new HashMap<>();
-
+    ArrayList<AllData> listData = new ArrayList<>();
     ExpandableListAdapter expandableListAdapter;
     ExpandableListView expandableListView;
+    DataAdapter adapter;
+    RecyclerView recyle_Data;
+    DatabaseHelper db = new DatabaseHelper(MainActivity.this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
 
-        RecyclerView recyle_Data = findViewById(R.id.recyle_Data);
+        recyle_Data = findViewById(R.id.recyle_Data);
+        recyle_Data.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new DataAdapter(this,listData);
+        recyle_Data.setAdapter(adapter);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -54,11 +60,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+
 
         SharePref sharePref = new SharePref();
 
@@ -81,51 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_tools) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    DatabaseHelper db = new DatabaseHelper(MainActivity.this);
     private void setData() {
 
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
@@ -171,20 +131,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
-                Log.i("data", cursor.getInt(0) + " " + cursor.getInt(1));
                 int cID = cursor.getInt(0);
                 String cName = cursor.getString(1);
-                MenuData menuData = new MenuData(cID,cName);
-                listCategory.add(menuData);
 
                 Cursor pCursor = db.getProductData(cID);
                 ArrayList<MenuData> childDataList = new ArrayList<>();
                 while (pCursor.moveToNext()) {
-                    Log.i("data1", pCursor.getInt(0) + " " + pCursor.getInt(2));
                     childDataList.add(new MenuData(pCursor.getInt(0),pCursor.getString(2)));
                 }
 
                 if (childDataList.size()>0) {
+                    MenuData menuData = new MenuData(cID,cName);
+                    listCategory.add(menuData);
                     listProduct.put(menuData, childDataList);
                 }
             }
@@ -197,33 +155,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         expandableListAdapter = new ExpandableListAdapter(this, listCategory, listProduct);
         expandableListView.setAdapter(expandableListAdapter);
 
-        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-
-                if (listCategory.get(groupPosition).isGroup) {
-                    if (!listCategory.get(groupPosition).hasChildren) {
-                        WebView webView = findViewById(R.id.webView);
-                        webView.loadUrl(listCategory.get(groupPosition).url);
-                        onBackPressed();
-                    }
-                }
-
-                return false;
-            }
-        });
-
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 
                 if (listProduct.get(listCategory.get(groupPosition)) != null) {
                     MenuData obj = listProduct.get(listCategory.get(groupPosition)).get(childPosition);
-//                    if (obj.url.length() > 0) {
-//                        WebView webView = findViewById(R.id.webView);
-//                        webView.loadUrl(obj.url);
-//                        onBackPressed();
-//                    }
+                    Cursor cur = db.getAllData(obj.id);
+                    while (cur.moveToNext()){
+                        listData.add(new AllData(cur.getString(2),cur.getString(3),cur.getString(4)));
+                        adapter.notifyDataSetChanged();
+                    }
+                    onBackPressed();
                 }
 
                 return false;
