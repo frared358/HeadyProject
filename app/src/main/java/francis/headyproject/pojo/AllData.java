@@ -1,7 +1,7 @@
-package francis.headyproject.variants;
+package francis.headyproject.pojo;
 
 public class AllData {
-    String size,color,price;
+    public String size,color,price;
 
     public AllData(String color, String size, String price) {
         this.size = size;

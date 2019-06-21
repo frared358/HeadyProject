@@ -1,6 +1,5 @@
-package francis.headyproject;
+package francis.headyproject.activity;
 
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,15 +25,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import francis.headyproject.R;
 import francis.headyproject.adapter.ExpandableListAdapter;
 import francis.headyproject.pojo.MenuData;
 import francis.headyproject.pojo.ResponseData;
-import francis.headyproject.util.ApiClient;
-import francis.headyproject.util.ApiInterface;
+import francis.headyproject.remote.ApiClient;
+import francis.headyproject.remote.ApiInterface;
 import francis.headyproject.util.DatabaseHelper;
 import francis.headyproject.util.SharePref;
-import francis.headyproject.variants.DataAdapter;
-import francis.headyproject.variants.AllData;
+import francis.headyproject.adapter.DataAdapter;
+import francis.headyproject.pojo.AllData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

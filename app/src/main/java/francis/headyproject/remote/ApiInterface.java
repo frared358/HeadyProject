@@ -1,4 +1,4 @@
-package francis.headyproject.util;
+package francis.headyproject.remote;
 
 import francis.headyproject.pojo.ResponseData;
 import retrofit2.Call;
